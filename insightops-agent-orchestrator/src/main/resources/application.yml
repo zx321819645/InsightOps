@@ -1,0 +1,28 @@
+server:
+  port: 8083   # 任务书规划：agent-orchestrator 用 8083
+  servlet:
+    context-path: /agent-orchestrator
+spring:
+  application:
+    name: insightops-agent-orchestrator   # 注册到 Nacos 的服务名
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848     # Nacos 地址
+        namespace: public               # 命名空间，默认 public
+        group: DEFAULT_GROUP              # 分组，默认 DEFAULT_GROUP
+        # 若 Nacos 开启了鉴权，取消下面两行注释
+        # username: nacos
+        # password: nacos
+
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: https://api.deepseek.com
+      api-key: ${DEEPSEEK_API_KEY}      # 从环境变量读取
+      model-name: deepseek-v4-flash
+      temperature: 0.3
+      timeout: 60s
+      log-requests: true                 # 开发期建议开，控制台能看到请求
+      log-responses: true

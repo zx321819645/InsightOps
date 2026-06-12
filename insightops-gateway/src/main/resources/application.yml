@@ -1,0 +1,70 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: insightops-gateway
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      # password: your_password
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: public
+        group: DEFAULT_GROUP
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+          lower-case-service-id: true
+      routes:
+        # Agent 编排服务（当前已存在）
+        - id: agent-orchestrator
+          uri: lb://insightops-agent-orchestrator
+          predicates:
+            - Path=/agent-orchestrator/**
+        # 认证服务（Week 2 后续实现）
+        - id: auth-service
+          uri: lb://insightops-auth-service
+          predicates:
+            - Path=/auth/**
+        # 会话服务（Week 2 后续实现）
+        - id: chat-service
+          uri: lb://insightops-chat-service
+          predicates:
+            - Path=/chat/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns:
+              - "http://localhost:*"
+              - "http://127.0.0.1:*"
+            allowed-headers: "*"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allow-credentials: true
+            max-age: 3600
+
+insightops:
+  jwt:
+    secret: zx040106
+    whitelist:
+      - /auth/auth/login
+      - /auth/auth/register
+
+  rate-limit:
+    enabled: true
+    window-seconds: 60
+    max-requests: 30
+    paths:
+      - /agent-orchestrator/**
+      - /chat/**

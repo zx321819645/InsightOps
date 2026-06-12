@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InsightOps 项目计划追踪</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface-hover: #243044;
+      --border: #2d3a4f;
+      --text: #e7ecf3;
+      --text-muted: #8b9cb3;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.15);
+      --success: #22c55e;
+      --success-soft: rgba(34, 197, 94, 0.15);
+      --warning: #f59e0b;
+      --phase-1: #6366f1;
+      --phase-2: #8b5cf6;
+      --phase-3: #ec4899;
+      --phase-4: #14b8a6;
+      --phase-5: #f97316;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 20px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .overall-progress {
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    .nav-section {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin: 20px 0 10px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      transition: all 0.15s;
+    }
+
+    .nav-link:hover { background: var(--surface-hover); color: var(--text); }
+
+    .nav-link .badge {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--border);
+      color: var(--text-muted);
+    }
+
+    .nav-link .badge.done { background: var(--success-soft); color: var(--success); }
+
+    .sidebar-actions {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn:hover { background: var(--surface-hover); border-color: var(--accent); }
+    .btn-danger:hover { border-color: #ef4444; color: #ef4444; }
+
+    .main {
+      padding: 32px 40px 80px;
+      max-width: 960px;
+    }
+
+    .hero {
+      margin-bottom: 40px;
+    }
+
+    .hero h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .hero p { color: var(--text-muted); font-size: 0.95rem; }
+
+    .meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .tag {
+      font-size: 0.8rem;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .phase {
+      margin-bottom: 48px;
+      scroll-margin-top: 24px;
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .phase-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .phase-title { font-size: 1.2rem; font-weight: 600; }
+    .phase-desc { font-size: 0.85rem; color: var(--text-muted); }
+
+    .week-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .week-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    .week-header:hover { background: var(--surface-hover); }
+
+    .week-title-wrap { display: flex; align-items: center; gap: 12px; }
+
+    .week-num {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      color: #93c5fd;
+    }
+
+    .week-title { font-weight: 600; font-size: 1rem; }
+
+    .week-progress {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .week-progress strong { color: var(--success); }
+
+    .week-body { padding: 0 20px 16px; }
+
+    .week-body.collapsed { display: none; }
+
+    .task-list { list-style: none; }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .task-item:last-child { border-bottom: none; }
+
+    .task-item.done .task-text { color: var(--text-muted); text-decoration: line-through; }
+    .task-item.done .task-id { opacity: 0.5; }
+
+    .task-check {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      accent-color: var(--success);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .task-content { flex: 1; min-width: 0; }
+
+    .task-id {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .task-text { font-size: 0.92rem; }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 6px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .task-meta span::before {
+      content: "•";
+      margin-right: 6px;
+      opacity: 0.5;
+    }
+
+    .acceptance {
+      margin-top: 12px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+    }
+
+    .acceptance-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--warning);
+      margin-bottom: 10px;
+    }
+
+    .acceptance-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 0.85rem;
+    }
+
+    .acceptance-item.done .acceptance-text {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .milestone-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.08));
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .milestone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .milestone-name { font-weight: 700; font-size: 1.05rem; }
+    .milestone-time { font-size: 0.85rem; color: var(--text-muted); }
+
+    .milestone-flag {
+      font-size: 0.85rem;
+      color: #c4b5fd;
+      margin-bottom: 12px;
+    }
+
+    .demo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 12px;
+    }
+
+    .demo-table th,
+    .demo-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .demo-table th {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.78rem;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #93c5fd;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      background: var(--surface);
+      border: 1px solid var(--success);
+      color: var(--success);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .convention-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 32px;
+    }
+
+    .convention-section h2 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .convention-section p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .convention-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .convention-table th,
+    .convention-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .convention-table th {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .convention-table code {
+      font-family: Consolas, "Courier New", monospace;
+      color: #93c5fd;
+      font-size: 0.8rem;
+    }
+
+    .convention-rules {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .convention-rules li {
+      margin-left: 18px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .main { padding: 24px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="logo">InsightOps</div>
+      <div class="subtitle">16 周 · 320 小时 · 项目计划追踪</div>
+
+      <div class="overall-progress">
+        <div class="progress-label">
+          <span>总进度</span>
+          <span id="overallPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="overallBar"></div>
+        </div>
+        <div style="margin-top:8px;font-size:0.78rem;color:var(--text-muted)">
+          <span id="doneCount">0</span> / <span id="totalCount">0</span> 项已完成
+        </div>
+      </div>
+
+      <div class="nav-section">规范</div>
+      <nav id="conventionNav">
+        <a class="nav-link" href="#api-conventions">
+          <span>API 路径规范</span>
+        </a>
+      </nav>
+
+      <div class="nav-section">阶段导航</div>
+      <nav id="phaseNav"></nav>
+
+      <div class="nav-section">里程碑</div>
+      <nav id="milestoneNav"></nav>
+
+      <div class="sidebar-actions">
+        <button class="btn" id="expandAll">展开全部</button>
+        <button class="btn" id="collapseAll">折叠全部</button>
+        <button class="btn" id="exportBtn">导出进度 JSON</button>
+        <button class="btn btn-danger" id="resetBtn">重置所有勾选</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="hero">
+        <h1>InsightOps 项目任务计划</h1>
+        <p>企业级 AIOps Agent 平台 · 勾选任务标记完成，进度自动保存在浏览器本地</p>
+        <div class="meta-tags">
+          <span class="tag">Java 17</span>
+          <span class="tag">Spring Cloud</span>
+          <span class="tag">LangChain4j</span>
+          <span class="tag">Vue 3</span>
+          <span class="tag">在职 18–22h/周</span>
+        </div>
+      </header>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">全部</button>
+        <button class="filter-btn" data-filter="pending">未完成</button>
+        <button class="filter-btn" data-filter="done">已完成</button>
+      </div>
+
+      <div id="planContent"></div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "insightops-plan-progress-v1";
+
+    const plan = {
+      apiConventions: {
+        pattern: "/{服务前缀}/{模块}/...",
+        gateway: "http://localhost:8080",
+        rules: [
+          "不使用 /api/v1/ 前缀，Gateway 路由 = /{服务前缀}/**",
+          "各微服务 context-path 与 Gateway 路由前缀一致",
+          "Controller 使用 @RequestMapping(\"/{模块}\")，完整路径如 /auth/auth/login",
+          "JWT 白名单路径与对外路径保持一致"
+        ],
+        whitelist: [
+          "POST /auth/auth/login",
+          "POST /auth/auth/register",
+          "GET /agent-orchestrator/agent/hello（开发期 Demo）"
+        ],
+        services: [
+          { service: "agent-orchestrator", route: "/agent-orchestrator/**", example: "GET /agent-orchestrator/agent/hello" },
+          { service: "auth-service", route: "/auth/**", example: "POST /auth/auth/login" },
+          { service: "chat-service", route: "/chat/**", example: "POST /chat/chat/sessions" },
+          { service: "tool-service", route: "/tool/**", example: "GET /tool/tool/list" },
+          { service: "knowledge-service", route: "/knowledge/**", example: "POST /knowledge/knowledge/upload" },
+          { service: "ticket-service", route: "/ticket/**", example: "POST /ticket/ticket" },
+          { service: "audit-service", route: "/audit/**", example: "GET /audit/audit/logs" },
+          { service: "alert-service", route: "/alert/**", example: "GET /alert/alert/rules" },
+          { service: "monitor-adapter", route: "/monitor/**", example: "POST /monitor/monitor/query" },
+          { service: "log-adapter", route: "/log/**", example: "POST /log/log/query" }
+        ]
+      },
+      phases: [
+        {
+          id: "phase1",
+          title: "第 1 阶段：奠基",
+          weeks: "Week 1–2",
+          color: "#6366f1",
+          description: "微服务骨架 + 中间件 + LLM 通路 + 网关认证会话",
+          weeks_list: [
+            {
+              id: "w1",
+              title: "立项 + 工程骨架",
+              tasks: [
+                { id: "1.1", text: "确定技术栈，编写技术选型文档", output: "docs/tech-selection.md", hours: 3 },
+                { id: "1.2", text: "创建 Maven 多模块父工程及子模块骨架", output: "项目仓库结构", hours: 4 },
+                { id: "1.3", text: "本地安装并启动 MySQL、Redis、Nacos，编写环境文档", output: "docs/local-setup.md", hours: 5 },
+                { id: "1.3b", text: "执行数据库初始化脚本，创建 insightops 库及 22 张表", output: "InsightOps数据库初始化.sql", hours: 1 },
+                { id: "1.4", text: "实现 insightops-common 公共模块（统一响应、异常、错误码）", output: "common 模块代码", hours: 4 },
+                { id: "1.5", text: "编写 README（架构图、启动说明）", output: "README.md", hours: 2 },
+                { id: "1.6", text: "接入 Ollama/DeepSeek，编写最小 Chat Demo 验证 AI 通路", output: "GET /agent-orchestrator/agent/hello", hours: 2 }
+              ],
+              acceptance: [
+                "MySQL、Redis、Nacos 本地安装完成且可正常连接",
+                "GET /agent-orchestrator/agent/hello 能成功调用 LLM 并返回回复"
+              ]
+            },
+            {
+              id: "w2",
+              title: "网关 + 认证 + 第一个业务服务",
+              tasks: [
+                { id: "2.1", text: "实现 gateway-service（路由 /{服务}/{模块}/...、跨域、JWT 过滤器）", output: "网关服务 + 路径规范", hours: 6 },
+                { id: "2.2", text: "实现 auth-service（/auth/auth/login、/auth/auth/register、JWT 签发、RBAC）", output: "认证 API", hours: 8 },
+                { id: "2.3", text: "实现 chat-service（/chat/chat/** 会话与消息 CRUD）", output: "会话管理 API", hours: 6 },
+                { id: "2.4", text: "接入 Nacos 注册发现 + Gateway 动态路由（前缀与 context-path 对齐）", output: "服务发现打通", hours: 4 }
+              ],
+              acceptance: [
+                "POST /auth/auth/login 可获取 JWT Token",
+                "POST /chat/chat/sessions 携带 Bearer Token 创建会话成功"
+              ]
+            }
+          ]
+        },
+        {
+          id: "phase2",
+          title: "第 2 阶段：Agent 核心",
+          weeks: "Week 3–6",
+          color: "#8b5cf6",
+          description: "ReAct + Tool + RAG + 流式输出 — 项目灵魂",
+          weeks_list: [
+            {
+              id: "w3",
+              title: "Agent 原型（ReAct + 3 个 Tool）",
+              tasks: [
+                { id: "3.1", text: "设计 Tool 接口规范（名称、描述、参数 JSON Schema）", output: "Tool SPI 设计文档", hours: 3 },
+                { id: "3.2", text: "实现 Mock 版 Tool：queryMetrics、queryLogs、searchKnowledge", output: "3 个 Tool 实现", hours: 8 },
+                { id: "3.3", text: "基于 LangChain4j 实现 ReAct Agent 编排", output: "Agent 核心逻辑", hours: 6 },
+                { id: "3.4", text: "编写 Prompt 模板（运维专家角色 + 结构化输出格式）", output: "prompts/ 目录", hours: 3 }
+              ],
+              acceptance: [
+                "提问「order-service 响应变慢」→ Agent 依次调用 3 个 Tool 并输出诊断结论"
+              ]
+            },
+            {
+              id: "w4",
+              title: "拆出 tool-service + 远程 Tool 调用",
+              tasks: [
+                { id: "4.1", text: "实现 tool-service（/tool/tool/** Tool 注册中心，DB + 缓存）", output: "Tool 管理 API", hours: 6 },
+                { id: "4.2", text: "orchestrator 通过 OpenFeign 远程调用 tool-service", output: "远程 Tool 执行", hours: 5 },
+                { id: "4.3", text: "Tool 执行结果统一封装（成功/失败/耗时/数据）", output: "标准响应格式", hours: 3 },
+                { id: "4.4", text: "实现 audit-service v1（/audit/audit/** 记录每次 Tool 调用）", output: "审计表 + 查询 API", hours: 6 }
+              ],
+              acceptance: [
+                "Agent 调用链可在 audit-service 数据库中完整追溯"
+              ]
+            },
+            {
+              id: "w5",
+              title: "RAG 知识库服务",
+              tasks: [
+                { id: "5.0", text: "本地安装 Milvus（或 Milvus Lite），验证向量写入与检索", output: "Milvus 可用", hours: 2 },
+                { id: "5.1", text: "实现 knowledge-service 文档上传与解析（/knowledge/knowledge/**）", output: "文档入库 API", hours: 8 },
+                { id: "5.2", text: "实现文本切片策略（按标题/固定长度 + 重叠窗口）", output: "Chunk 逻辑", hours: 4 },
+                { id: "5.3", text: "Embedding 向量化 + 写入 Milvus（MySQL 存 vector_id 关联）", output: "向量存储与检索", hours: 6 },
+                { id: "5.4", text: "实现混合检索（向量 TopK + 关键词过滤）", output: "检索 API", hours: 4 },
+                { id: "5.5", text: "准备 10+ 篇运维故障案例文档作为 Demo 数据", output: "data/knowledge/", hours: 2 }
+              ],
+              acceptance: [
+                "提问「Redis 连接超时怎么处理」→ 能引用知识库片段回答"
+              ]
+            },
+            {
+              id: "w6",
+              title: "Agent Memory + 流式输出",
+              tasks: [
+                { id: "6.1", text: "实现会话级 Memory（Redis 缓存 + DB 持久化）", output: "多轮上下文记忆", hours: 6 },
+                { id: "6.2", text: "实现 SSE 流式返回 Agent 思考过程与回复（/agent-orchestrator/agent/stream）", output: "流式 API", hours: 6 },
+                { id: "6.3", text: "Agent Trace 结构化存储（thought / action / observation）", output: "Trace 数据模型", hours: 6 },
+                { id: "6.4", text: "编写 Agent 对话场景集成测试", output: "测试用例", hours: 4 }
+              ],
+              acceptance: [
+                "Agent 核心完成，可演示 3 个问答场景",
+                "多轮对话上下文正确保持",
+                "流式输出体验流畅"
+              ],
+              milestone: "M1"
+            }
+          ]
+        },
+        {
+          id: "phase3",
+          title: "第 3 阶段：业务深化",
+          weeks: "Week 7–10",
+          color: "#ec4899",
+          description: "监控日志适配 + 告警驱动 + 工单审批 + 多 Agent 协作",
+          weeks_list: [
+            {
+              id: "w7",
+              title: "monitor-adapter + log-adapter",
+              tasks: [
+                { id: "7.1", text: "实现 monitor-adapter（/monitor/monitor/** 封装 Prometheus HTTP API）", output: "指标查询服务", hours: 8 },
+                { id: "7.2", text: "实现 log-adapter（/log/log/** 文件日志查询，预留 ELK API）", output: "日志查询服务", hours: 6 },
+                { id: "7.3", text: "编写 Mock 指标/日志数据生成器（无真实集群时使用）", output: "演示数据工具", hours: 4 },
+                { id: "7.4", text: "Tool 层接入真实 adapter，替换 Week 3 的 Mock", output: "真实数据通路", hours: 4 }
+              ],
+              acceptance: [
+                "Agent 能返回具体数据，如「14:30 P99 从 200ms 升至 2s」"
+              ]
+            },
+            {
+              id: "w8",
+              title: "alert-service 事件驱动",
+              tasks: [
+                { id: "8.0", text: "本地安装并启动 Kafka，验证生产者/消费者", output: "Kafka 可用", hours: 3 },
+                { id: "8.1", text: "实现 alert-service（/alert/alert/** 告警表、规则管理、模拟推送）", output: "告警管理服务", hours: 6 },
+                { id: "8.2", text: "实现 Kafka 生产者/消费者（alert.triggered 事件）", output: "事件驱动链路", hours: 6 },
+                { id: "8.3", text: "orchestrator 消费告警事件，自动启动 Agent 分析", output: "异步诊断能力", hours: 6 },
+                { id: "8.4", text: "分析结果写回告警（根因、建议、置信度）", output: "告警状态更新", hours: 4 }
+              ],
+              acceptance: [
+                "模拟 CPU 告警 → 30 秒内自动生成分析报告"
+              ]
+            },
+            {
+              id: "w9",
+              title: "ticket-service + 审批流",
+              tasks: [
+                { id: "9.1", text: "实现 ticket-service（/ticket/ticket/** CRUD + 状态机）", output: "工单 API", hours: 6 },
+                { id: "9.2", text: "实现危险操作 Tool：restartService、scaleReplicas", output: "需审批 Tool", hours: 6 },
+                { id: "9.3", text: "实现审批流 API（POST /ticket/ticket/{id}/approve）", output: "审批接口", hours: 6 },
+                { id: "9.4", text: "Agent 识别高风险操作并自动创建工单", output: "Agent-工单联动", hours: 4 }
+              ],
+              acceptance: [
+                "Agent 建议重启服务 → 生成工单 → 管理员批准后才执行"
+              ]
+            },
+            {
+              id: "w10",
+              title: "多 Agent 协作",
+              tasks: [
+                { id: "10.1", text: "设计 3 类 Agent 角色：Planner / Diagnostor / Executor", output: "Agent 角色设计文档", hours: 4 },
+                { id: "10.2", text: "实现多 Agent 协作编排", output: "协作编排引擎", hours: 10 },
+                { id: "10.3", text: "Agent 间结果传递（内部 Event 或同步编排）", output: "协作链路", hours: 4 },
+                { id: "10.4", text: "绘制多 Agent 协作时序图", output: "架构文档", hours: 2 }
+              ],
+              acceptance: [
+                "告警驱动 → 多 Agent 分析 → 审批流全链路打通"
+              ],
+              milestone: "M2"
+            }
+          ]
+        },
+        {
+          id: "phase4",
+          title: "第 4 阶段：工程化 + 前端 + 打磨",
+          weeks: "Week 11–14",
+          color: "#14b8a6",
+          description: "可观测性 + 安全限流 + Vue 控制台 + 测试 CI/CD",
+          weeks_list: [
+            {
+              id: "w11",
+              title: "可观测性",
+              tasks: [
+                { id: "11.1", text: "各服务接入 Micrometer，暴露 Prometheus 指标端点", output: "指标采集", hours: 4 },
+                { id: "11.2", text: "接入 SkyWalking 或 Zipkin 分布式追踪", output: "链路追踪", hours: 6 },
+                { id: "11.3", text: "创建 Grafana 监控面板（网关/Agent/Tool 关键指标）", output: "Grafana JSON", hours: 4 },
+                { id: "11.4", text: "统一结构化 JSON 日志 + traceId 贯穿", output: "日志规范", hours: 4 },
+                { id: "11.5", text: "LLM 调用耗时与 Token 消耗统计", output: "成本可观测", hours: 4 }
+              ]
+            },
+            {
+              id: "w12",
+              title: "限流、安全、稳定性",
+              tasks: [
+                { id: "12.1", text: "Gateway 限流（按用户/IP，基于 Redis）", output: "限流过滤器", hours: 4 },
+                { id: "12.2", text: "LLM 调用熔断降级（Resilience4j，超时返回模板回复）", output: "熔断机制", hours: 6 },
+                { id: "12.3", text: "Tool 参数严格校验 + 白名单机制", output: "防 Prompt 注入", hours: 4 },
+                { id: "12.4", text: "敏感操作二次鉴权（需特定角色）", output: "安全加固", hours: 4 },
+                { id: "12.5", text: "关键接口幂等设计（工单创建、告警处理）", output: "幂等键机制", hours: 4 }
+              ]
+            },
+            {
+              id: "w13",
+              title: "前端控制台",
+              tasks: [
+                { id: "13.1", text: "搭建前端项目骨架（登录页调用 /auth/auth/login + 侧边栏布局）", output: "前端框架", hours: 4 },
+                { id: "13.2", text: "对话页（SSE 流式 + Tool 调用链可视化）", output: "核心对话界面", hours: 8 },
+                { id: "13.3", text: "告警列表 + 分析报告详情页", output: "告警管理页", hours: 4 },
+                { id: "13.4", text: "工单审批操作页", output: "审批界面", hours: 4 },
+                { id: "13.5", text: "知识库文档上传与管理页", output: "知识库管理", hours: 4 }
+              ]
+            },
+            {
+              id: "w14",
+              title: "测试 + CI/CD",
+              tasks: [
+                { id: "14.1", text: "核心模块单元测试（Agent、Tool、审批状态机）", output: "单测覆盖率 > 60%", hours: 8 },
+                { id: "14.2", text: "Spring Boot 集成测试（本地 MySQL + Redis，Mock LLM）", output: "集成测试", hours: 6 },
+                { id: "14.3", text: "GitHub Actions CI 流水线（编译、单元测试）", output: ".github/workflows/", hours: 4 },
+                { id: "14.4", text: "OpenAPI 文档配置与 Swagger UI 集成", output: "API 文档", hours: 2 }
+              ],
+              acceptance: [
+                "项目在本地可完整运行、可观测、可测试"
+              ],
+              milestone: "M3"
+            }
+          ]
+        },
+        {
+          id: "phase5",
+          title: "第 5 阶段：冲刺与面试准备",
+          weeks: "Week 15–16",
+          color: "#f97316",
+          description: "Demo 场景 + 文档 + 简历 + 面试话术",
+          weeks_list: [
+            {
+              id: "w15",
+              title: "Demo 场景与数据",
+              tasks: [
+                { id: "15.1", text: "编写 5 个 Demo 场景脚本与演示数据", output: "docs/demo-scripts.md", hours: 8 },
+                { id: "15.2", text: "修复演示路径上的所有 Bug", output: "稳定版", hours: 8 },
+                { id: "15.3", text: "录制 3–5 分钟项目演示视频（可选）", output: "演示视频", hours: 4 },
+                { id: "demo1", text: "Demo 场景 1：性能劣化诊断（ReAct + RAG）", output: "演示脚本", hours: 0 },
+                { id: "demo2", text: "Demo 场景 2：告警自动分析（Kafka + 多 Agent）", output: "演示脚本", hours: 0 },
+                { id: "demo3", text: "Demo 场景 3：危险操作审批（Human-in-the-loop）", output: "演示脚本", hours: 0 },
+                { id: "demo4", text: "Demo 场景 4：知识库问答（RAG 实时入库）", output: "演示脚本", hours: 0 },
+                { id: "demo5", text: "Demo 场景 5：全链路追踪（SkyWalking + Agent Trace）", output: "演示脚本", hours: 0 }
+              ]
+            },
+            {
+              id: "w16",
+              title: "文档 + 简历 + 面试准备",
+              tasks: [
+                { id: "16.1", text: "编写架构设计文档（背景、方案、技术权衡）", output: "docs/architecture.md", hours: 4 },
+                { id: "16.2", text: "编写部署文档（本地环境、中间件启动顺序、服务启动步骤）", output: "docs/deploy.md", hours: 3 },
+                { id: "16.3", text: "整理 API 文档（路径规范 /{服务}/{模块}/...）", output: "Swagger + 补充说明", hours: 2 },
+                { id: "16.4", text: "撰写简历项目描述 + 3 个 STAR 难点故事", output: "简历素材", hours: 4 },
+                { id: "16.5", text: "整理面试高频问题与参考答案", output: "docs/interview-prep.md", hours: 3 },
+                { id: "16.6", text: "项目最终验收与复盘", output: "复盘总结", hours: 4 }
+              ],
+              acceptance: [
+                "5 个 Demo 场景全部跑通",
+                "架构文档、部署文档、API 文档齐全",
+                "简历项目描述与面试话术准备完毕"
+              ],
+              milestone: "M4"
+            }
+          ]
+        }
+      ],
+      milestones: [
+        { id: "M0", name: "M0 · 微服务基础骨架", time: "Week 2 末", flag: "网关 + 认证 + 会话", phase: "phase1" },
+        { id: "M1", name: "M1 · Agent 核心", time: "Week 6 末", flag: "ReAct + Tool + RAG + 流式输出", phase: "phase2" },
+        { id: "M2", name: "M2 · 业务闭环", time: "Week 10 末", flag: "告警驱动 + 多 Agent + 审批流", phase: "phase3" },
+        { id: "M3", name: "M3 · 工程化完成", time: "Week 14 末", flag: "前端 + 可观测 + 测试 + CI/CD", phase: "phase4" },
+        { id: "M4", name: "M4 · 最终交付", time: "Week 16 末", flag: "Demo + 文档 + 面试准备", phase: "phase5" }
+      ],
+      deliverables: [
+        { id: "d1", text: "8–10 个微服务，支持本地环境启动与联调" },
+        { id: "d2", text: "完整 Agent 编排（ReAct + 多 Agent 协作 + RAG + 8+ Tool）" },
+        { id: "d3", text: "告警事件驱动自动分析（Kafka）" },
+        { id: "d4", text: "Human-in-the-loop 危险操作审批流" },
+        { id: "d5", text: "Web 管理控制台（对话、告警、工单、审计、知识库）" },
+        { id: "d6", text: "全链路可观测（SkyWalking + Agent Trace 可视化）" },
+        { id: "d7", text: "CI/CD 流水线 + 核心模块测试覆盖" },
+        { id: "d8", text: "5 个固定 Demo 场景 + 架构文档 + 部署文档" }
+      ]
+    };
+
+    let progress = loadProgress();
+    let currentFilter = "all";
+    let collapsedWeeks = new Set();
+
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveProgress() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      updateUI();
+    }
+
+    function allItemIds() {
+      const ids = [];
+      plan.phases.forEach(p => {
+        p.weeks_list.forEach(w => {
+          w.tasks.forEach(t => ids.push(t.id));
+          (w.acceptance || []).forEach((_, i) => ids.push(`${w.id}-acc-${i}`));
+        });
+      });
+      plan.deliverables.forEach(d => ids.push(d.id));
+      plan.milestones.forEach(m => ids.push(`milestone-${m.id}`));
+      return ids;
+    }
+
+    function isDone(id) {
+      return !!progress[id];
+    }
+
+    function toggle(id, value) {
+      progress[id] = value !== undefined ? value : !progress[id];
+      saveProgress();
+      showToast(value === false || !progress[id] ? "已取消完成" : "已标记完成 ✓");
+    }
+
+    function getPhaseStats(phase) {
+      let total = 0, done = 0;
+      phase.weeks_list.forEach(w => {
+        w.tasks.forEach(t => { total++; if (isDone(t.id)) done++; });
+        (w.acceptance || []).forEach((_, i) => {
+          total++;
+          if (isDone(`${w.id}-acc-${i}`)) done++;
+        });
+      });
+      return { total, done };
+    }
+
+    function getWeekStats(week) {
+      let total = week.tasks.length + (week.acceptance || []).length;
+      let done = week.tasks.filter(t => isDone(t.id)).length;
+      (week.acceptance || []).forEach((_, i) => {
+        if (isDone(`${week.id}-acc-${i}`)) done++;
+      });
+      return { total, done };
+    }
+
+    function updateOverallProgress() {
+      const ids = allItemIds();
+      const done = ids.filter(isDone).length;
+      const total = ids.length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      document.getElementById("overallPercent").textContent = pct + "%";
+      document.getElementById("overallBar").style.width = pct + "%";
+      document.getElementById("doneCount").textContent = done;
+      document.getElementById("totalCount").textContent = total;
+    }
+
+    function renderNav() {
+      const phaseNav = document.getElementById("phaseNav");
+      phaseNav.innerHTML = plan.phases.map(p => {
+        const s = getPhaseStats(p);
+        const allDone = s.done === s.total;
+        return `<a class="nav-link" href="#${p.id}">
+          <span>${p.title.replace("第 ", "").replace(" 阶段：", " · ")}</span>
+          <span class="badge ${allDone ? "done" : ""}">${s.done}/${s.total}</span>
+        </a>`;
+      }).join("");
+
+      const msNav = document.getElementById("milestoneNav");
+      msNav.innerHTML = plan.milestones.map(m => {
+        const done = isDone(`milestone-${m.id}`);
+        return `<a class="nav-link" href="#${m.id}">
+          <span>${m.id}</span>
+          <span class="badge ${done ? "done" : ""}">${done ? "✓" : "○"}</span>
+        </a>`;
+      }).join("");
+    }
+
+    function renderWeekCard(week, weekIndex, phaseColor) {
+      const stats = getWeekStats(week);
+      const collapsed = collapsedWeeks.has(week.id);
+      const weekNum = weekIndex + 1;
+
+      const tasksHtml = week.tasks.map(task => {
+        const done = isDone(task.id);
+        if (currentFilter === "done" && !done) return "";
+        if (currentFilter === "pending" && done) return "";
+        return `
+          <li class="task-item ${done ? "done" : ""}" data-id="${task.id}">
+            <input type="checkbox" class="task-check" ${done ? "checked" : ""} data-id="${task.id}" />
+            <div class="task-content">
+              <div class="task-id">${task.id}</div>
+              <div class="task-text">${task.text}</div>
+              <div class="task-meta">
+                <span>产出：${task.output}</span>
+                ${task.hours ? `<span>预估 ${task.hours}h</span>` : ""}
+              </div>
+            </div>
+          </li>`;
+      }).join("");
+
+      const acceptanceHtml = (week.acceptance || []).length ? `
+        <div class="acceptance">
+          <div class="acceptance-title">本周验收标准</div>
+          ${week.acceptance.map((text, i) => {
+            const accId = `${week.id}-acc-${i}`;
+            const done = isDone(accId);
+            if (currentFilter === "done" && !done) return "";
+            if (currentFilter === "pending" && done) return "";
+            return `
+              <div class="acceptance-item ${done ? "done" : ""}">
+                <input type="checkbox" class="task-check" ${done ? "checked" : ""} data-id="${accId}" />
+                <span class="acceptance-text">${text}</span>
+              </div>`;
+          }).join("")}
+        </div>` : "";
+
+      const milestoneBadge = week.milestone
+        ? `<span class="week-num" style="background:rgba(34,197,94,0.15);color:#86efac">里程碑 ${week.milestone}</span>`
+        : "";
+
+      if (currentFilter !== "all" && !tasksHtml && !acceptanceHtml.replace(/\s/g, "")) {
+        return "";
+      }
+
+      return `
+        <div class="week-card" id="${week.id}">
+          <div class="week-header" data-week="${week.id}">
+            <div class="week-title-wrap">
+              <span class="week-num">Week ${weekNum}</span>
+              ${milestoneBadge}
+              <span class="week-title">${week.title}</span>
+            </div>
+            <span class="week-progress"><strong>${stats.done}</strong> / ${stats.total}</span>
+          </div>
+          <div class="week-body ${collapsed ? "collapsed" : ""}">
+            <ul class="task-list">${tasksHtml || '<li style="padding:12px 0;color:var(--text-muted);font-size:0.85rem">无匹配任务</li>'}</ul>
+            ${acceptanceHtml}
+          </div>
+        </div>`;
+    }
+
+    function renderMilestones() {
+      return `
+        <section class="phase" id="milestones-section">
+          <div class="phase-header">
+            <div class="phase-icon" style="background:rgba(99,102,241,0.2);color:#a5b4fc">M</div>
+            <div>
+              <div class="phase-title">里程碑总览</div>
+              <div class="phase-desc">5 个关键节点，对照任务书验收</div>
+            </div>
+          </div>
+          ${plan.milestones.map(m => {
+            const done = isDone(`milestone-${m.id}`);
+            return `
+              <div class="milestone-card" id="${m.id}">
+                <div class="milestone-header">
+                  <div>
+                    <div class="milestone-name">${m.name}</div>
+                    <div class="milestone-time">${m.time}</div>
+                  </div>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.85rem">
+                    <input type="checkbox" class="task-check" ${done ? "checked" : ""} data-id="milestone-${m.id}" />
+                    已达成
+                  </label>
+                </div>
+                <div class="milestone-flag">${m.flag}</div>
+              </div>`;
+          }).join("")}
+        </section>`;
+    }
+
+    function renderDeliverables() {
+      return `
+        <section class="phase" id="deliverables">
+          <div class="phase-header">
+            <div class="phase-icon" style="background:rgba(249,115,22,0.2);color:#fdba74">★</div>
+            <div>
+              <div class="phase-title">最终交付标准</div>
+              <div class="phase-desc">项目完成时应全部勾选</div>
+            </div>
+          </div>
+          <div class="week-card">
+            <div class="week-body" style="padding-top:16px">
+              <ul class="task-list">
+                ${plan.deliverables.map(d => {
+                  const done = isDone(d.id);
+                  if (currentFilter === "done" && !done) return "";
+                  if (currentFilter === "pending" && done) return "";
+                  return `
+                    <li class="task-item ${done ? "done" : ""}">
+                      <input type="checkbox" class="task-check" ${done ? "checked" : ""} data-id="${d.id}" />
+                      <div class="task-content">
+                        <div class="task-text">${d.text}</div>
+                      </div>
+                    </li>`;
+                }).join("")}
+              </ul>
+            </div>
+          </div>
+        </section>`;
+    }
+
+    function renderApiConventions() {
+      const c = plan.apiConventions;
+      const rows = c.services.map(s =>
+        `<tr><td>${s.service}</td><td><code>${s.route}</code></td><td><code>${s.example}</code></td></tr>`
+      ).join("");
+      return `
+        <section class="convention-section" id="api-conventions">
+          <h2>API 路径规范</h2>
+          <p>Gateway 统一入口 <code>${c.gateway}</code>，路径格式 <code>${c.pattern}</code>，详见 <code>docs/tech-selection.md §5.1</code></p>
+          <table class="convention-table">
+            <thead><tr><th>服务</th><th>Gateway 路由</th><th>示例</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <ul class="convention-rules">
+            ${c.rules.map(r => `<li>${r}</li>`).join("")}
+          </ul>
+          <div style="margin-top:12px;font-size:0.85rem;color:var(--text-muted)">
+            <strong style="color:var(--text)">JWT 白名单：</strong>
+            ${c.whitelist.map(w => `<code style="margin-right:8px">${w}</code>`).join("")}
+          </div>
+        </section>`;
+    }
+
+    function renderContent() {
+      let weekCounter = 0;
+      const html = plan.phases.map(phase => {
+        const weeksHtml = phase.weeks_list.map(w => {
+          weekCounter++;
+          return renderWeekCard(w, weekCounter - 1, phase.color);
+        }).join("");
+
+        if (currentFilter !== "all" && !weeksHtml.replace(/\s/g, "")) return "";
+
+        return `
+          <section class="phase" id="${phase.id}">
+            <div class="phase-header">
+              <div class="phase-icon" style="background:${phase.color}22;color:${phase.color}">${phase.weeks.replace("Week ", "W")}</div>
+              <div>
+                <div class="phase-title">${phase.title}</div>
+                <div class="phase-desc">${phase.weeks} · ${phase.description}</div>
+              </div>
+            </div>
+            ${weeksHtml}
+          </section>`;
+      }).join("");
+
+      document.getElementById("planContent").innerHTML =
+        renderApiConventions() + html + renderMilestones() + renderDeliverables();
+    }
+
+    function bindEvents() {
+      document.getElementById("planContent").addEventListener("change", e => {
+        if (e.target.classList.contains("task-check")) {
+          toggle(e.target.dataset.id, e.target.checked);
+        }
+      });
+
+      document.getElementById("planContent").addEventListener("click", e => {
+        const header = e.target.closest(".week-header");
+        if (header && !e.target.classList.contains("task-check")) {
+          const id = header.dataset.week;
+          if (collapsedWeeks.has(id)) collapsedWeeks.delete(id);
+          else collapsedWeeks.add(id);
+          header.nextElementSibling.classList.toggle("collapsed");
+        }
+      });
+
+      document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentFilter = btn.dataset.filter;
+          renderContent();
+          updateOverallProgress();
+        });
+      });
+
+      document.getElementById("expandAll").addEventListener("click", () => {
+        collapsedWeeks.clear();
+        document.querySelectorAll(".week-body").forEach(el => el.classList.remove("collapsed"));
+      });
+
+      document.getElementById("collapseAll").addEventListener("click", () => {
+        plan.phases.forEach(p => p.weeks_list.forEach(w => collapsedWeeks.add(w.id)));
+        document.querySelectorAll(".week-body").forEach(el => el.classList.add("collapsed"));
+      });
+
+      document.getElementById("exportBtn").addEventListener("click", () => {
+        const data = {
+          exportedAt: new Date().toISOString(),
+          progress,
+          summary: {
+            done: allItemIds().filter(isDone).length,
+            total: allItemIds().length
+          }
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `insightops-progress-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        showToast("进度已导出");
+      });
+
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        if (confirm("确定重置所有勾选记录？此操作不可撤销。")) {
+          progress = {};
+          saveProgress();
+          showToast("已重置全部进度");
+        }
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+
+    function updateUI() {
+      renderNav();
+      renderContent();
+      updateOverallProgress();
+    }
+
+    bindEvents();
+    updateUI();
+  </script>
+</body>
+</html>

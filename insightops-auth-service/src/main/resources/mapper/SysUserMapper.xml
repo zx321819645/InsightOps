@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.insightops.auth.mapper.SysUserMapper">
+
+    <resultMap id="SysUserMap" type="com.insightops.auth.entity.SysUser">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="nickname" column="nickname"/>
+        <result property="email" column="email"/>
+        <result property="phone" column="phone"/>
+        <result property="avatar" column="avatar"/>
+        <result property="status" column="status"/>
+        <result property="lastLoginAt" column="last_login_at"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="SysUserMap">
+        SELECT id, username, password, nickname, email, phone, avatar, status,
+               last_login_at, last_login_ip, created_at, updated_at, deleted
+        FROM sys_user
+        WHERE id = #{id}
+          AND deleted = 0
+        LIMIT 1
+    </select>
+
+    <select id="selectByUsername" resultMap="SysUserMap">
+        SELECT id, username, password, nickname, email, phone, avatar, status,
+               last_login_at, last_login_ip, created_at, updated_at, deleted
+        FROM sys_user
+        WHERE username = #{username}
+          AND deleted = 0
+        LIMIT 1
+    </select>
+
+    <insert id="insert">
+        INSERT INTO sys_user (id, username, password, nickname, email, status)
+        VALUES (#{id}, #{username}, #{password}, #{nickname}, #{email}, #{status})
+    </insert>
+
+    <update id="updateLastLogin">
+        UPDATE sys_user
+        SET last_login_at = #{lastLoginAt},
+            last_login_ip = #{lastLoginIp}
+        WHERE id = #{id}
+          AND deleted = 0
+    </update>
+</mapper>
