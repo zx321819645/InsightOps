@@ -22,21 +22,21 @@ spring:
           enabled: false
           lower-case-service-id: true
       routes:
-        # Agent 编排服务（当前已存在）
-        - id: agent-orchestrator
-          uri: lb://insightops-agent-orchestrator
-          predicates:
-            - Path=/agent-orchestrator/**
-        # 认证服务（Week 2 后续实现）
+        # 认证服务：/auth/auth/login、/auth/auth/register、/auth/auth/me
         - id: auth-service
           uri: lb://insightops-auth-service
           predicates:
             - Path=/auth/**
-        # 会话服务（Week 2 后续实现）
+        # 会话服务：/chat/sessions/createSession、/chat/sessions/{id}/messages/sendMessage 等
         - id: chat-service
           uri: lb://insightops-chat-service
           predicates:
             - Path=/chat/**
+        # Agent 编排服务：/agent-orchestrator/agent/hello
+        - id: agent-orchestrator
+          uri: lb://insightops-agent-orchestrator
+          predicates:
+            - Path=/agent-orchestrator/**
       globalcors:
         cors-configurations:
           '[/**]':
@@ -68,3 +68,15 @@ insightops:
     paths:
       - /agent-orchestrator/**
       - /chat/**
+  health:
+    startup-log-enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+      show-components: always

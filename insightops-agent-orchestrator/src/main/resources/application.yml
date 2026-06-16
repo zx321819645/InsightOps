@@ -26,3 +26,17 @@ langchain4j:
       timeout: 60s
       log-requests: true                 # 开发期建议开，控制台能看到请求
       log-responses: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+
+insightops:
+  health:
+    startup-log-enabled: true

@@ -8,7 +8,9 @@
                         p.perm_name  AS permName,
                         p.perm_type  AS permType,
                         p.path       AS path,
-                        p.method     AS method
+                        p.method     AS method,
+                        p.sort_order,
+                        p.id
         FROM sys_permission p
                  INNER JOIN sys_role_permission rp ON p.id = rp.permission_id
                  INNER JOIN sys_user_role ur ON rp.role_id = ur.role_id

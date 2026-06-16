@@ -5,7 +5,9 @@
     <file url="file://$PROJECT_DIR$/InsightOps-common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/insightops-agent-orchestrator/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/insightops-auth-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/insightops-chat-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/insightops-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/insightops-health/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>

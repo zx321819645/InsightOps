@@ -1,0 +1,8 @@
+${AnsiColor.BRIGHT_GREEN}
+ _____ _  __  _  ____  ___  ____   _____
+|__  /\ \/ /||_| __ | / _ \/    \ |_   _|
+  / /  \' / || |  _ \| | | | | | |  | |
+ / /_  /. \ || | |_| | |_| | |_| |  | |
+/____|/_/\_\||_|____/ \___/ \___/   |_|
+${AnsiColor.BRIGHT_CYAN}
+ :: zxinboot ::                  (v${spring-boot.version})${AnsiColor.DEFAULT}

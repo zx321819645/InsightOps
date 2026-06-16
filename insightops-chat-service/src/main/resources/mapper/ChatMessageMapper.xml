@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.insightops.chat.mapper.ChatMessageMapper">
+
+    <!-- chat_message 结果映射 -->
+    <resultMap id="ChatMessageMap" type="com.insightops.chat.entity.ChatMessage">
+        <id property="id" column="id"/>
+        <result property="sessionId" column="session_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="role" column="role"/>
+        <result property="content" column="content"/>
+        <result property="contentType" column="content_type"/>
+        <result property="agentRunId" column="agent_run_id"/>
+        <result property="tokenCount" column="token_count"/>
+        <result property="metadata" column="metadata"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO chat_message (id, session_id, user_id, role, content, content_type,
+                                  agent_run_id, token_count, metadata)
+        VALUES (#{id}, #{sessionId}, #{userId}, #{role}, #{content}, #{contentType},
+                #{agentRunId}, #{tokenCount}, #{metadata})
+    </insert>
+
+    <!-- 历史消息：按时间正序，适合聊天窗口从上到下渲染 -->
+    <select id="selectBySessionId" resultMap="ChatMessageMap">
+        SELECT id, session_id, user_id, role, content, content_type, agent_run_id,
+               token_count, metadata, created_at, updated_at, deleted
+        FROM chat_message
+        WHERE session_id = #{sessionId}
+          AND deleted = 0
+        ORDER BY created_at ASC
+    </select>
+
+    <!-- 删除会话时级联逻辑删除其下全部消息 -->
+    <update id="softDeleteBySessionId">
+        UPDATE chat_message
+        SET deleted = 1
+        WHERE session_id = #{sessionId}
+          AND deleted = 0
+    </update>
+</mapper>

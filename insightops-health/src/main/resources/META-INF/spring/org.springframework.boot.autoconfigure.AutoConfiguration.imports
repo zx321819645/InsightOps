@@ -1,0 +1,5 @@
+com.insightops.health.InsightOpsHealthAutoConfiguration
+com.insightops.health.DatabaseCheckerAutoConfiguration
+com.insightops.health.NacosCheckerAutoConfiguration
+com.insightops.health.RedisCheckerAutoConfiguration
+com.insightops.health.ReactiveRedisCheckerAutoConfiguration

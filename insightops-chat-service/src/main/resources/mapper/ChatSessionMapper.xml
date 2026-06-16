@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.insightops.chat.mapper.ChatSessionMapper">
+
+    <!-- chat_session 结果映射 -->
+    <resultMap id="ChatSessionMap" type="com.insightops.chat.entity.ChatSession">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="title" column="title"/>
+        <result property="sessionType" column="session_type"/>
+        <result property="refId" column="ref_id"/>
+        <result property="status" column="status"/>
+        <result property="messageCount" column="message_count"/>
+        <result property="lastMessageAt" column="last_message_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO chat_session (id, user_id, title, session_type, ref_id, status, message_count)
+        VALUES (#{id}, #{userId}, #{title}, #{sessionType}, #{refId}, #{status}, #{messageCount})
+    </insert>
+
+    <select id="selectById" resultMap="ChatSessionMap">
+        SELECT id, user_id, title, session_type, ref_id, status, message_count,
+               last_message_at, created_at, updated_at, deleted
+        FROM chat_session
+        WHERE id = #{id}
+          AND deleted = 0
+        LIMIT 1
+    </select>
+
+    <!-- 用户会话列表：按最后活跃时间倒序，配合 PageHelper 分页 -->
+    <select id="selectByUserId" resultMap="ChatSessionMap">
+        SELECT id, user_id, title, session_type, ref_id, status, message_count,
+               last_message_at, created_at, updated_at, deleted
+        FROM chat_session
+        WHERE user_id = #{userId}
+          AND deleted = 0
+        ORDER BY last_message_at DESC, created_at DESC
+    </select>
+
+    <!-- 动态更新：null 字段不参与 SET，支持只改 title 或只改 status -->
+    <update id="updateTitleAndStatus">
+        UPDATE chat_session
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+          AND deleted = 0
+    </update>
+
+    <!-- 发消息后冗余更新，供会话列表展示消息数与排序 -->
+    <update id="updateMessageStats">
+        UPDATE chat_session
+        SET message_count = #{messageCount},
+            last_message_at = #{lastMessageAt}
+        WHERE id = #{id}
+          AND deleted = 0
+    </update>
+
+    <update id="softDelete">
+        UPDATE chat_session
+        SET deleted = 1
+        WHERE id = #{id}
+          AND deleted = 0
+    </update>
+</mapper>

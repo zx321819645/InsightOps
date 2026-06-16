@@ -20,10 +20,12 @@
     <description>Enterprise AIOps Agent Platform</description>
 
     <modules>
+        <module>insightops-health</module>
         <module>InsightOps-common</module>
         <module>insightops-agent-orchestrator</module>
         <module>insightops-gateway</module>
         <module>insightops-auth-service</module>
+        <module>insightops-chat-service</module>
     </modules>
 
     <properties>
@@ -67,12 +69,22 @@
             <!-- 内部模块 -->
             <dependency>
                 <groupId>com.insightops</groupId>
+                <artifactId>insightops-health</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.insightops</groupId>
                 <artifactId>insightops-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.insightops</groupId>
                 <artifactId>insightops-gateway</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.insightops</groupId>
+                <artifactId>insightops-chat-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- 后续业务模块会用到 -->

@@ -1,11 +1,14 @@
+# 会话管理服务配置
+# 经 Gateway 访问示例：http://localhost:8080/chat/sessions/createSession（需携带 token 请求头）
+
 server:
-  port: 8081
+  port: 8082
   servlet:
-    context-path: /auth
+    context-path: /chat
 
 spring:
   application:
-    name: insightops-auth-service
+    name: insightops-chat-service   # Nacos 注册名，Gateway 路由 lb://insightops-chat-service
   datasource:
     url: jdbc:mysql://localhost:3306/insightops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
@@ -23,12 +26,9 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
 
-insightops:
-  jwt:
-    secret: zx040106
-    expire-hours: 1
-  health:
-    startup-log-enabled: true
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
 
 management:
   endpoints:
@@ -39,3 +39,7 @@ management:
     health:
       show-details: always
       show-components: always
+
+insightops:
+  health:
+    startup-log-enabled: true
