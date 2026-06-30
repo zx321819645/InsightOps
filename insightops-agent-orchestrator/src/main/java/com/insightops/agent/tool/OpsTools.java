@@ -1,5 +1,7 @@
 package com.insightops.agent.tool;
 
+import com.insightops.agent.tool.mock.MockKnowledgeTool;
+import com.insightops.agent.tool.mock.MockLogsTool;
 import com.insightops.agent.tool.mock.MockMetricsTool;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
@@ -23,6 +25,8 @@ import java.util.List;
 public class OpsTools {
 
     private final MockMetricsTool mockMetricsTool;
+    private final MockLogsTool mockLogsTool;
+    private final MockKnowledgeTool mockKnowledgeTool;
 
     /**
      * 查询指定微服务在时间范围内的性能指标。
@@ -81,5 +85,112 @@ public class OpsTools {
             Integer limit) {
 
         return mockMetricsTool.query(serviceName, startTime, endTime, metrics, limit);
+    }
+
+    /**
+     * 查询指定微服务在时间范围内的应用日志。
+     * <p>
+     * <b>何时调用：</b>
+     * <ul>
+     *   <li>queryMetrics 已发现指标异常，需要查 ERROR 日志定位根因</li>
+     *   <li>用户询问异常栈、超时原因、具体错误信息</li>
+     *   <li>需要从日志中提取组件名（如 Redis、MySQL）供 searchKnowledge 检索</li>
+     * </ul>
+     * <b>调用顺序建议：</b>在 queryMetrics 之后、searchKnowledge 之前调用。
+     * <b>限制：</b>只读查询，不修改任何系统状态。
+     * </p>
+     */
+    @Tool("""
+            查询指定微服务在时间范围内的应用日志，支持按关键词、日志级别、时间范围过滤。
+            当 queryMetrics 发现性能劣化或错误率升高后，使用本 Tool 排查异常栈、错误信息与超时原因。
+            若日志中出现 Redis、MySQL、Kafka 等组件名，应提取后调用 searchKnowledge 查询处理方案。
+            不要在尚未确认指标异常时跳过 queryMetrics 直接查日志（除非用户明确要求只看日志）。
+            """)
+    public ToolResult queryLogs(
+            @P(value = """
+                    目标微服务的名称，必填。
+                    格式：小写字母开头，仅含小写字母、数字和连字符。
+                    示例：order-service、payment-service。
+                    应与 queryMetrics 使用相同的 serviceName，以保持诊断链路一致。
+                    """)
+            String serviceName,
+
+            @P(value = """
+                    查询起始时间，可选，默认 -15m（最近 15 分钟）。
+                    建议与 queryMetrics 使用相同时间窗口，便于将日志与指标劣化时间点对齐。
+                    支持相对时间 -15m、-1h 或 ISO-8601 绝对时间。
+                    """)
+            String startTime,
+
+            @P(value = """
+                    查询结束时间，可选，默认 now（当前时刻）。
+                    与 startTime 配合确定查询窗口。
+                    """)
+            String endTime,
+
+            @P(value = """
+                    日志内容关键词过滤，可选，不传则返回该级别下所有匹配日志。
+                    示例：Redis、TimeoutException、connection timeout。
+                    从指标异常怀疑某组件时，可传入组件名缩小范围。
+                    """)
+            String keyword,
+
+            @P(value = """
+                    日志级别过滤，可选，默认 ERROR。
+                    可选值：DEBUG、INFO、WARN、ERROR。
+                    故障诊断场景建议先用 ERROR；需要上下文时可降为 WARN。
+                    """)
+            String level,
+
+            @P(value = """
+                    返回日志条数上限，可选，默认 20，最大 100。
+                    日志条数过多会消耗 Token，一般 5~10 条 ERROR 足够定位根因。
+                    """)
+            Integer limit) {
+
+        return mockLogsTool.query(serviceName, startTime, endTime, keyword, level, limit);
+    }
+
+    /**
+     * 从运维知识库检索与故障、组件、操作手册相关的文档片段。
+     * <p>
+     * <b>何时调用：</b>
+     * <ul>
+     *   <li>queryLogs 已定位到具体错误类型或组件（如 Redis timeout）</li>
+     *   <li>需要标准修复步骤、操作手册、历史故障案例</li>
+     *   <li>用户明确询问「怎么处理」「有没有手册」</li>
+     * </ul>
+     * <b>调用顺序建议：</b>在 queryMetrics、queryLogs 之后，作为诊断链路最后一步。
+     * <b>限制：</b>只读检索，不修改知识库。
+     * </p>
+     */
+    @Tool("""
+            从运维知识库检索与故障、组件、操作手册相关的文档片段，返回可操作的修复建议与案例。
+            当 queryLogs 发现具体错误（如 Redis connection timeout）后，根据组件名和错误类型构造 query 调用本 Tool。
+            这是故障诊断的第三步：在前两步确认「指标异常 + 日志根因」后，查询标准处理步骤。
+            query 应来自日志/指标中的真实线索，不要编造检索词；若尚无日志线索，应先调用 queryLogs。
+            """)
+    public ToolResult searchKnowledge(
+            @P(value = """
+                    自然语言检索词，必填。
+                    根据 queryLogs 发现的组件与错误类型构造，如「Redis connection timeout 处理」「Redis 连接超时」。
+                    可包含组件名（Redis、MySQL、Kafka）和故障现象（timeout、连接失败、慢查询）。
+                    """)
+            String query,
+
+            @P(value = """
+                    返回文档片段数量上限，可选，默认 3，最大 10。
+                    片段过多会增加 Token 消耗，一般 2~3 条 runbook + incident 案例足够生成修复建议。
+                    """)
+            Integer topK,
+
+            @P(value = """
+                    文档分类过滤，可选，不传则检索全部分类。
+                    可选值：incident（故障案例）、runbook（操作手册）、faq（常见问题）。
+                    需要标准处理步骤时优先 runbook；需要类似案例时选 incident。
+                    """)
+            String category) {
+
+        return mockKnowledgeTool.search(query, topK, category);
     }
 }

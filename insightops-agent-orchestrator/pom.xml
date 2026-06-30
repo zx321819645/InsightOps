@@ -35,6 +35,11 @@
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
         </dependency>
+        <!-- AiServices、@SystemMessage、@UserMessage 等（open-ai-starter 不包含 service 包） -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+        </dependency>
 
         <!-- Nacos 服务注册与发现 -->
         <dependency>

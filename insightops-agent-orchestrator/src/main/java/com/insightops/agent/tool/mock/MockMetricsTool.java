@@ -1,4 +1,3 @@
-
 package com.insightops.agent.tool.mock;
 
 import com.insightops.agent.tool.ToolResult;
